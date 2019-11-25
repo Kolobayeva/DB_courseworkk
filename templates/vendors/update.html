@@ -5,20 +5,24 @@
     {{form.hidden_tag()}}
 
     <div class="form-group">
-        {{form.Outwear.label}}
-        {{form.Outwear(class_="form-control")}}
+        {{form.vendor_name.label}}
+        {{form.vendor_name(class_="form-control")}}
     </div>
     <div class="form-group">
-        {{form.Lowerwear.label}}
-        {{form.Lowerwear(class_="form-control")}}
+        {{form.vendor_address.label}}
+        {{form.vendor_address(class_="form-control")}}
     </div>
 	    <div class="form-group">
-        {{form.Shoes.label}}
-        {{form.Shoes(class_="form-control")}}
+        {{form.balance.label}}
+        {{form.balance(class_="form-control")}}
+    </div>
+        <div class="form-group">
+        {{form.vendor_country.label}}
+        {{form.vendor_country(class_="form-control")}}
     </div>
     <div class="form-group">
-        {{form.Option.label}}
-        {{form.Option(class_="form-control")}}
+        {{form.Clothe.label}}
+        {{form.Clothe(class_="form-control")}}
     </div>
     {{form.Submit(class_="btn btn-success")}}
 </form>

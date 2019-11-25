@@ -23,7 +23,7 @@ db.init_app(app)
 
 
 @app.route("/")
-def index():
+def root():
     db.create_all()
     return render_template("layout.html")
 
@@ -31,45 +31,23 @@ def index():
 @app.route('/map')
 def map():
     db.create_all()
-
-    user_1 = Users(Login='Kolobaieva',
-                    Password='1111',
-                   Email='dddd@gmail.com',
-                   Lastname='Kolobaieva',
-                   Firstname='Katia',
-                   Age=20,
-                   Eyes='blue',
-                   hair='brown',
-                   height=160)
-
-
-    event_1 = Events(event_name='birthday',
-                      user_idIDFK=1)
-
-    option_1 = Options(place='cafe',
-                      season='summer',
-                      temperature=20,
-                      event_idIDFK=1
-                      )
-
-    clothe_1 = Clothes(style_name='romantic',
-                      outwear='t-shirt',
-                      lowerwear='jeans',
-                      shoes=35,
-                      option_idIDFK=1
-                      )
-    vendor_1 = Vendors(vendor_name='Katia',
-                       vendor_address='kyiv',
-                       balance=2000,
-                       vendor_country='UK',
-                       clothe_idIdFk=1
-                         )
-
-    # db.session.add_all([student_1, student_2, student_3])
-    db.session.add_all([user_1, event_1, option_1,clothe_1,vendor_1])
+    user_1=Users(Login='Kolobaieva',Password='1111',Email='dddd@gmail.com',Lastname='Kolobaieva',Firstname='Katia',Age='20',Eyes='blue',hair='brown', height='160')
+    event_1=Events(event_name='birthday',user_idIDFK='1')
+    option_1=Options(place='cafe',season='summer',temperature='20',event_idIDFK='1')
+    clothe_1=Clothes(style_name='romantic',outwear='t-shirt',lowerwear='jeans',shoes='35',option_idIDFK='1')
+    vendor_1=Vendors(vendor_name='Katia',vendor_address='kyiv', balance='2000',vendor_country='UK',clothe_idIdFk='1')
+    db.session.add_all([user_1,event_1,option_1,clothe_1,vendor_1])
     db.session.commit()
     return render_template("layout.html")
 
+#@app.route('/get')
+#def get():
+  #  users=Users.query.all()
+  #  events=Events.query.all()
+  #  options=Options.query.all()
+   # clothes=Clothes.query.all()
+   # vendors=Vendors.query.all()
+   # return render_template("layout.html",users=users,events=events,options=options,clothes=clothes,vendors=vendors)
 
 @app.route("/users")
 def users():
@@ -269,8 +247,53 @@ def delete_clothe(uuid):
 
 @app.route("/vendors")
 def vendors():
-    all_vendors = Clothes.query.join(Clothes).all()
+    all_vendors = Vendors.query.join(Clothes).all()
     return render_template("vendors/index.html", vendors=all_vendors)
+
+@app.route("/vendors/new", methods=["GET", "POST"])
+def new_vendor():
+    form = VendorsViewModel()
+    form.Clothe.choices = [(str(clothe.clothe_id), clothe.style_name) for clothe
+                           in Clothes.query.join(Options, Clothes.clothe_idIdFk == Options.option_id).all()]
+
+    if request.method == "POST":
+        if not form.validate():
+            return render_template("vendors/create.html", form=form)
+        else:
+            option = form.domain()
+            db.session.add(option)
+            db.session.commit()
+            return redirect(url_for("vendors"))
+
+    return render_template("vendors/create.html", form=form)
+
+
+@app.route("/vendors/<uuid>", methods=["GET", "POST"])
+def update_vendor(uuid):
+    vendor = Vendors.query.filter(Vendors.vendor_id == uuid).first()
+    form = vendor.wtf()
+    form.Clothe.choices = [(str(clothe.clothe_id), clothe.style_name) for clothe
+                           in Clothes.query.join(Options, Clothes.clothe_idIdFk == Options.option_id).all()]
+
+    if request.method == "POST":
+        if not form.validate():
+            return render_template("vendors/update.html", form=form)
+        vendor.map_from(form)
+        db.session.commit()
+        return redirect(url_for("vendors"))
+
+    return render_template("vendors/update.html", form=form)
+
+
+@app.route("/vendors/delete/<uuid>", methods=["POST"])
+def delete_vendor(uuid):
+    vendor = Vendors.query.filter(Vendors.vendor_id == uuid).first()
+    if vendor:
+        db.session.delete(vendor)
+        db.session.commit()
+
+    return redirect(url_for("vendors"))
+
 
 
 
