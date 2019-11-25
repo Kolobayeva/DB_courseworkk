@@ -138,7 +138,7 @@ class Vendors(db.Model):
     CreatedOn = db.Column("createdOn", db.TIMESTAMP, default=datetime.now)
 
     clothe_idIdFk = db.Column("clothe_idIdFk", db.Integer, db.ForeignKey("clothes.clothe_id"))
-    Clothe = db.relationship("Clothes", backref=backref('Clothes', cascade='all,delete'), passive_deletes=True)
+    Clothe = db.relationship("Clothes", backref=backref('Vendors', cascade='all,delete'), passive_deletes=True)
 
     def wtf(self):
         return VendorsViewModel(

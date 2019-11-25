@@ -253,8 +253,8 @@ def vendors():
 @app.route("/vendors/new", methods=["GET", "POST"])
 def new_vendor():
     form = VendorsViewModel()
-    form.Clothe.choices = [(str(clothe.clothe_id), clothe.style_name) for clothe
-                           in Clothes.query.join(Options, Clothes.clothe_idIdFk == Options.option_id).all()]
+    form.Clothe.choices = [(str(clothe.clothe_id), clothe.Outwear) for clothe
+                           in Clothes.query.join(Options, Clothes.option_idIdFk == Options.option_id).all()]
 
     if request.method == "POST":
         if not form.validate():
@@ -272,8 +272,8 @@ def new_vendor():
 def update_vendor(uuid):
     vendor = Vendors.query.filter(Vendors.vendor_id == uuid).first()
     form = vendor.wtf()
-    form.Clothe.choices = [(str(clothe.clothe_id), clothe.style_name) for clothe
-                           in Clothes.query.join(Options, Clothes.clothe_idIdFk == Options.option_id).all()]
+    form.Clothe.choices = [(str(clothe.clothe_id), clothe.Outwear) for clothe
+                           in Clothes.query.join(Options, Clothes.option_idIdFk == Options.option_id).all()]
 
     if request.method == "POST":
         if not form.validate():
@@ -293,8 +293,6 @@ def delete_vendor(uuid):
         db.session.commit()
 
     return redirect(url_for("vendors"))
-
-
 
 
 @app.route("/dashboard")
