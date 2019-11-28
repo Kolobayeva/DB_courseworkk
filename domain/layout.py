@@ -1,1 +1,5 @@
-country_type=[("UK","PL","GB")]
+country_type = [("UK", "UK"),
+              ("PL", "PL"),
+              ("GB", "GB")]
+
+

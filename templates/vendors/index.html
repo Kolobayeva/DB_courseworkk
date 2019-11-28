@@ -10,7 +10,7 @@
             <thead>
             <tr>
                 <th style="width: 12%">vendor_name</th>
-                <th style="width: 13%">vendor_address</th>
+                <th style="width: 12%">vendor_address</th>
 				<th style="width: 13%">balance</th>
 				<th style="width: 13%">vendor_country</th>
                 <th style="width: 13%">Outwear</th>
@@ -27,7 +27,12 @@
 					<td>{{ vendor.vendor_country }}</td>
                     <td>{{ vendor.Clothe.Outwear }}</td>
                     <td>{{ vendor.CreatedOn.strftime("%b %d %Y %H:%M:%S")  }}</td>
-                    <td class="d-flex justify-content-end"></td>
+                    <td class="d-flex justify-content-end">
+                        <a href="{{url_for('update_vendor', uuid=vendor.vendor_id)}}" class="btn btn-success">Edit</a>
+                        <form method="post" action="{{url_for('delete_vendor', uuid=vendor.vendor_id)}}" class="delete-record">
+                            <input type="submit" value="Delete" class="btn btn-danger"/>
+                        </form>
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>

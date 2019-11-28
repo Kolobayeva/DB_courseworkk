@@ -1,12 +1,12 @@
-from domain.models import db, Vendors
+from domain.models import db, Vendors, Clothes
 import plotly
 import plotly.graph_objs as go
 import json
 
 def visualization_data():
-    data = db.session.query(Vendors.vendor_name,
-                            db.func.count(Vendors.balance).label("VendorsQuantity")
-                            ).join(Vendors, Vendors.vendor_name == Vendors.vendor_name).group_by(Vendors.balance).all()
+    data = db.session.query(Vendors.balance,
+                            db.func.count(Clothes.clothe_id).label("ClothesQuantity")
+                            ).join(Clothes, Vendors.clothe_idIdFk == Clothes.clothe_id).group_by(Vendors.balance).all()
 
     bar = [
         go.Bar(

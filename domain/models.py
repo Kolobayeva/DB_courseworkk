@@ -6,6 +6,9 @@ from views.events import EventsViewModel
 from views.options import OptionsViewModel
 from views.clothes import ClothesViewModel
 from views.vendors import VendorsViewModel
+from views.favors import FavorsViewModel
+
+
 
 db = SQLAlchemy()
 
@@ -156,3 +159,27 @@ class Vendors(db.Model):
         self.balance = form.balance.data,
         self.vendor_country = form.vendor_country.data,
         self.clothe_idIdFk = form.Clothe.data
+
+class Favors(db.Model):
+    __tablename__ = "favors"
+
+    favors_id = db.Column("favors_id", db.Integer, primary_key=True)
+    CreatedOn = db.Column("createdOn", db.TIMESTAMP, default=datetime.now)
+
+    clothe_idIdFk = db.Column("clothe_idIdFk", db.Integer, db.ForeignKey("clothes.clothe_id"))
+    Clothe = db.relationship("Clothes", backref=backref('clothe', cascade='all,delete'), passive_deletes=True)
+    vendor_idIdFk = db.Column("vendor_idIdFk", db.Integer, db.ForeignKey("vendors.vendor_id"))
+    Vendor = db.relationship("Vendors", backref=backref('vendor', cascade='all,delete'),
+                             passive_deletes=True)
+
+    def wtf(self):
+        return FavorsViewModel(
+            Clothe=self.clothe_idIdFk,
+            Vendor=self.vendor_idIdFk,
+            CreatedOn=self.CreatedOn
+        )
+
+    def map_from(self, form):
+        self.vendor_idIdFk = form.Vendor.data,
+        self.clothe_idIdFk = form.Clothe.data
+

@@ -1,12 +1,12 @@
 from flask import Flask, request, render_template, redirect, url_for
-from domain.models import db, Users, Events, Options, Clothes, Vendors
+from domain.models import db, Users, Events, Options, Clothes, Vendors,Favors
 from domain.credentials import *
 from views.users import UsersViewModel
 from views.events import EventsViewModel
 from views.options import OptionsViewModel
 from views.clothes import ClothesViewModel
 from views.vendors import VendorsViewModel
-from views.dashboard import DashboardViewModel
+from views.favors import FavorsViewModel
 from services.visualization import visualization_data
 from sqlalchemy import desc
 import os
@@ -294,23 +294,68 @@ def delete_vendor(uuid):
 
     return redirect(url_for("vendors"))
 
+@app.route("/favors")
+def favors():
+    all_favors = Favors.query.join(Clothes).join(Vendors).all()
+    return render_template("favors/index.html", favors=all_favors)
 
-@app.route("/dashboard")
-def dashboard():
-    all_vendors = db.session.query(Vendors.vendor_name, Vendors.balance).all()
-    dashboardViewModel = DashboardViewModel()
-    if len(all_vendors):
-        dashboardViewModel.Vendors = [(str(Vendors.vendor_name), Vendors.balance) for user in all_vendors]
-        dashboardViewModel.visualization_bar = visualization_bar(all_vendors[0][0])
+@app.route("/favors/new", methods=["GET", "POST"])
+def new_favor():
+    form = FavorsViewModel()
+    form.Vendor.choices = [
+        (str(vendor.vendor_id), vendor.vendor_name) for vendor in
+        Vendors.query.all()]
 
-    return render_template("dashboard/index.html", model=dashboardViewModel)
+    form.Clothe.choices = [(str(clothe.clothe_id), clothe.Outwear) for clothe in
+                             Clothes.query.all()]
+
+    if request.method == "POST":
+        if not form.validate():
+            return render_template("questionnaires/create.html", form=form)
+        else:
+            favor = form.domain()
+            db.session.add(favor)
+            db.session.commit()
+            return redirect(url_for("favors"))
+
+    return render_template("favors/create.html", form=form)
 
 
-@app.route("/user_distribution/<uuid>")
-def visualization_bar(uuid):
-    return visualization_bar(uuid)
+@app.route("/favors/delete/<uuid>", methods=["POST"])
+def delete_favor(uuid):
+    favor = Favors.query.filter(Favors.favors_id == uuid).first()
+    if favor:
+        db.session.delete(favor)
+        db.session.commit()
+
+    return redirect(url_for("favors"))
 
 
+@app.route("/favors/<uuid>", methods=["GET", "POST"])
+def update_favor(uuid):
+    favor = Favors.query.filter(Favors.favors_id == uuid).first()
+    form = favor.wtf()
+    form.Vendor.choices = [
+        (str(vendor.vendor_id), vendor.vendor_name) for vendor in
+        Vendors.query.all()]
+
+    form.Clothe.choices = [(str(clothe.clothe_id), clothe.Outwear) for clothe in
+                             Clothes.query.all()]
+
+    if request.method == "POST":
+        if not form.validate():
+            return render_template("favors/update.html", form=form)
+
+        favor.map_from(form)
+        db.session.commit()
+        return redirect(url_for("favors"))
+
+    return render_template("favors/update.html", form=form)
+
+@app.route("/bar", methods=["GET"])
+def visualization():
+    data = visualization_data()
+    return render_template("dashboard/index.html", clothe_vendors_bar=data)
 
 
 if __name__ == "__main__":
