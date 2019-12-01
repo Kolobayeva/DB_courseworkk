@@ -7,11 +7,11 @@ def visualization_data():
     data = db.session.query(Vendors.balance,
                             db.func.count(Clothes.clothe_id).label("ClothesQuantity")
                             ).join(Clothes, Vendors.clothe_idIdFk == Clothes.clothe_id).group_by(Vendors.balance).all()
-
+    close_idd=[1,2,3,4,5]
     bar = [
         go.Bar(
             x=[value[0] for value in data],
-            y=[value[1] for value in data]
+            y=close_idd
         )
     ]
 
